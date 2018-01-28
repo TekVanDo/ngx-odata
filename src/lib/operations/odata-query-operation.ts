@@ -4,7 +4,7 @@ import { ODataConfiguration } from '../odata-configuration';
 import { ODataOperation } from './odata-operation';
 import { ODataService } from '../odata-service';
 import { ExpandOperation } from './odata-expand-operation';
-import * as utils from '../utils';
+import * as utils from '../utils/utils';
 import { DomSanitizer } from '@angular/platform-browser';
 import { BatchBuilder } from '../utils/batch/batch-builder';
 

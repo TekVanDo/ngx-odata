@@ -38,12 +38,12 @@ export class ODataConfiguration {
 
   handleError(err: any, caught: any): void {
     console.warn('OData error: ', err, caught);
-  };
+  }
 
   get requestOptions(): RequestOptions {
     const headers = new Headers({ 'Authorization': `Basic ${this.authToken}` });
     return new RequestOptions({ body: '', headers: headers});
-  };
+  }
 
   get postRequestOptions(): RequestOptions {
     const headers = new Headers({ 'Content-Type': 'application/json; charset=utf-8' });

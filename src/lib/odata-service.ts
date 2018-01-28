@@ -1,5 +1,7 @@
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/catch';
 import { ODataConfiguration } from './odata-configuration';
 import { ODataQuery } from './operations/odata-query-operation';
 
@@ -72,7 +74,7 @@ export class ODataService<T> {
   public runQuerySequence(observables: Observable<any> []): Promise<any> {
     return new Promise((resolve, reject ) => {
       this.runSequenceRecursive(observables, [], resolve, reject);
-    })
+    });
   }
 
   private runSequenceRecursive(observables: Observable<any> [], results: any [], resolve: Function, reject: Function) {
@@ -83,7 +85,7 @@ export class ODataService<T> {
           this.runSequenceRecursive(observables, results, resolve, reject);
         },
         err => {
-          reject(err)
+          reject(err);
         });
     } else {
       resolve(results);

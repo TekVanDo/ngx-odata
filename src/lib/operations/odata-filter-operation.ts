@@ -1,5 +1,5 @@
 import { Buildable } from './buildable';
-import * as utils from '../utils';
+import * as utils from '../utils/utils';
 
 export class FilterOperation implements Buildable {
 

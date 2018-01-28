@@ -3,6 +3,9 @@ import { NgModule } from '@angular/core';
 
 
 import { AppComponent } from './app.component';
+import { NgxOdataModule } from '../lib';
+import { VersionsService } from './odata-services/version.service';
+import { Http, HttpModule } from '@angular/http';
 
 
 @NgModule({
@@ -10,9 +13,11 @@ import { AppComponent } from './app.component';
     AppComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    NgxOdataModule,
+    HttpModule
   ],
-  providers: [],
+  providers: [VersionsService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

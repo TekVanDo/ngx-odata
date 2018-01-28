@@ -9,14 +9,22 @@
     "rxjs": ">=5.1.0",
     "zone.js": "^0.8.4",
     "ramda": ">=0.24.1",
-    "@types/ramda": ">=0.24.16"
+    "@types/ramda": ">=0.24.16",
+    "moment": "^2.20.0",
+    "angular2-uuid": "^1.1.1",
+    "lodash": "^4.17.4",
+    "underscore.string": "^3.3.4",
+    "http-const": "^1.0.3"
   },
   "ngPackage": {
     "$schema": "./node_modules/ng-packagr/ng-package.schema.json",
-    "dest": "../../dist/lib",
-    "workingDirectory": ".ng_build",
+    "dest": "../../ng-packagr",
+    "workingDirectory": "../../.ng_build",
     "lib": {
-      "entryFile": "index.ts"
+      "entryFile": "index.ts",
+      "externals": {
+        "moment": "moment"
+      }
     }
   }
 }

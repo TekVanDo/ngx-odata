@@ -1,6 +1,6 @@
 import { HttpRequestObject } from './interfaces';
-import { Buildable } from '../../operations/buildable';
-import { HttpRequestBuilder } from './../../../../http-request-buider/http-request-builder';
+import { Buildable } from '../../operations';
+import { HttpRequestBuilder } from '../http-request-builder';
 import { UUID } from 'angular2-uuid';
 
 export class ChangeSet implements Buildable {

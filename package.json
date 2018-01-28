@@ -1,6 +1,6 @@
 {
-  "name": "ngx-odata",
-  "version": "0.0.0",
+  "name": "ngx-odata-app",
+  "version": "0.0.1",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -22,8 +22,14 @@
     "@angular/platform-browser": "^5.2.0",
     "@angular/platform-browser-dynamic": "^5.2.0",
     "@angular/router": "^5.2.0",
+    "angular2-uuid": "^1.1.1",
     "core-js": "^2.4.1",
+    "http-const": "^1.0.3",
+    "lodash": "^4.17.4",
+    "moment": "^2.20.1",
+    "ngx-odata": ">=0.0.1",
     "rxjs": "^5.5.6",
+    "underscore.string": "^3.3.4",
     "zone.js": "^0.8.19"
   },
   "devDependencies": {

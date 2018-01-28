@@ -1,5 +1,5 @@
 import { UUID } from 'angular2-uuid';
-import { Buildable } from '../../operations/buildable';
+import { Buildable } from '../../operations';
 import { ChangeSet } from './change-set';
 
 export class BatchBuilder implements Buildable {
