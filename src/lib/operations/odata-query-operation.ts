@@ -103,7 +103,7 @@ export class ODataQuery<T> extends ODataOperation<T> {
   public setBody(newBody): ODataQuery<T> {
     this.body = newBody;
     return this;
-  };
+  }
 
   private prepareExecGet() {
     const config = this.config;
