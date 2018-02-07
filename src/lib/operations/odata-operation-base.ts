@@ -1,7 +1,6 @@
 import { FilterOperation } from './odata-filter-operation';
 import { Observable } from 'rxjs/Observable';
 import { ODataConfiguration } from '../odata-configuration';
-import { URLSearchParams } from '@angular/http';
 
 export abstract class ODataOperationBase<T> {
   protected _select: string;
@@ -61,29 +60,29 @@ export abstract class ODataOperationBase<T> {
     return this;
   }
 
-  protected getParams(): URLSearchParams {
-    const params = new URLSearchParams();
+  protected getParams(): { [param: string]: string } {
+    const params = {};
     if (this._select && this._select.length > 0) {
-      params.set(this.config.keys.select, this._select);
+      params[this.config.keys.select] = this._select;
     }
     if (this._filter) {
-      params.set(this.config.keys.filter, this._filter.build());
+      params[this.config.keys.filter] = this._filter.build();
     }
     if (this._search) {
-      params.set(this.config.keys.search, `"${this._search}"`);
+      params[this.config.keys.search] = `"${this._search}"`;
     }
     if (this._top) {
-      params.set(this.config.keys.top, this._top.toString());
+      params[this.config.keys.top] = this._top.toString();
     }
     if (this._skip) {
-      params.set(this.config.keys.skip, this._skip.toString());
+      params[this.config.keys.skip] = this._skip.toString();
     }
     if (this._orderBy) {
-      params.set(this.config.keys.orderBy, this._orderBy);
+      params[this.config.keys.orderBy] = this._orderBy;
     }
     if (this._customParams) {
       this._customParams.forEach((one) => {
-        params.set(one.key, one.value);
+        params[one.key] = one.value;
       });
     }
     return params;

@@ -1,5 +1,5 @@
-import { Headers, RequestOptions, Response, ResponseContentType, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/throw';
 import { ODataConfiguration } from '../odata-configuration';
 import { ODataOperation } from './odata-operation';
 import { ODataService } from '../odata-service';
@@ -7,6 +7,7 @@ import { ExpandOperation } from './odata-expand-operation';
 import * as utils from '../utils/utils';
 import { DomSanitizer } from '@angular/platform-browser';
 import { BatchBuilder } from '../utils/batch/batch-builder';
+import { HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 
 export class PagedResult<T> {
   public data: T[];
@@ -24,7 +25,7 @@ export class ODataQuery<T> extends ODataOperation<T> {
     super(serviceInContext.typeName, serviceInContext.config, serviceInContext.http);
   }
 
-  public get (key: any = null, params?: any, paramsTypes?: any) {
+  public get(key: any = null, params?: any, paramsTypes?: any) {
     if (params) {
       this.resourceSegments.push(`${this._typeName}(${this.prepareFunctionParams(params, paramsTypes)})`);
     } else {
@@ -48,29 +49,6 @@ export class ODataQuery<T> extends ODataOperation<T> {
     return this;
   }
 
-  protected prepareFunctionParams(params: object | Array<string | number>, paramsType?: object): string {
-    let paramsStr = '';
-    if (!params) {
-      return paramsStr;
-    }
-    if (!Array.isArray(params)) {
-      const paramTokens = [];
-      Object.keys(params).forEach(k => {
-        if (params[k] === null) {
-          paramTokens.push(`${k}=null`);
-        } else if (paramsType) {
-          paramTokens.push(`${k}=${utils.wrapValue(params[k], paramsType[k])}`);
-        } else {
-          paramTokens.push(`${k}=${utils.wrapValue(params[k])}`);
-        }
-      });
-      paramsStr = paramTokens.join(',');
-    } else {
-      paramsStr = params.map(v => utils.wrapValue(v)).join(',');
-    }
-    return paramsStr;
-  }
-
   public expand(...expandFns: ((e: ExpandOperation) => void)[]): ODataQuery<T> {
     const expands = [];
     for (const modifyExpand of expandFns) {
@@ -79,57 +57,36 @@ export class ODataQuery<T> extends ODataOperation<T> {
       expands.push(expandOperation.build());
     }
     this._expand = expands.join(',');
-    return this;
+    return <ODataQuery<T>>this;
   }
 
   public nextResource(type): ODataQuery<any> {
     this.serviceInContext = this.config.injector.get(type);
     this._typeName = this.serviceInContext.typeName;
-    return this;
+    return <ODataQuery<T>>this;
   }
 
   public property(prop): ODataQuery<any> {
     this.resourceSegments.push(prop);
-    return this;
+    return <ODataQuery<T>>this;
   }
 
   public batch(batchBuilder: BatchBuilder): ODataQuery<any> {
     this.resourceSegments.push('$batch');
     this.body = batchBuilder.build();
     this.boundary = `batch_${batchBuilder.uuid}`;
-    return this;
+    return <ODataQuery<T>>this;
   }
 
   public setBody(newBody): ODataQuery<T> {
     this.body = newBody;
-    return this;
-  }
-
-  private prepareExecGet() {
-    const config = this.config;
-    const headers = new Headers({ 'Authorization': `Basic ${config.authToken}` });
-    const options = new RequestOptions({ search: this.getQueryParams(), headers: headers });
-    return { config, options };
-  }
-
-  private prepareExecPost(customHeaders?: Map<string, string>) {
-    const config = this.config;
-
-    const headersObj = { 'Authorization': `Basic ${config.authToken}` };
-    if (customHeaders) {
-      customHeaders.forEach((v, k) => {
-        headersObj[k] = v;
-      });
-    }
-
-    const options = new RequestOptions({ headers: new Headers(headersObj) });
-    return { config, options };
+    return <ODataQuery<T>>this;
   }
 
   public exec(): Observable<any> {
     const requestData = this.prepareExecGet();
     return this.http.get(this.buildResourceURL(), requestData.options)
-      .map(res => {
+      .map((res: HttpResponse<Object>) => {
         return this.extractData(res, requestData.config);
       })
       .catch((err: any, caught: Observable<Array<T>>) => {
@@ -162,19 +119,6 @@ export class ODataQuery<T> extends ODataOperation<T> {
     return this.request(data);
   }
 
-  private request(data, method = 'post'): Observable<any> {
-    return this.http[method](this.buildResourceURL(), this.body, data.options)
-      .map(res => {
-        return this.extractData(res, data.config);
-      })
-      .catch((err: any, caught: Observable<Array<T>>) => {
-        if (this.config.handleError) {
-          this.config.handleError(err, caught);
-        }
-        return Observable.throw(err);
-      });
-  }
-
   public execPut(): Observable<any> {
     const data = this.prepareExecPost();
     return this.request(data, 'put');
@@ -186,12 +130,15 @@ export class ODataQuery<T> extends ODataOperation<T> {
   }
 
   public execBlob(): Observable<any> {
-    const params = this.getQueryParams();
-    const headers = new Headers({ 'Authorization': `Basic ${this.config.authToken}` });
-    const options = new RequestOptions({ search: params, headers: headers, responseType: ResponseContentType.Blob });
-    return this.http.get(this.buildResourceURL(), options)
-      .map(res => {
-        let url = window.URL.createObjectURL(res.blob());
+    const options = {
+      headers: new HttpHeaders({ 'Authorization': `Basic ${this.config.authToken}` }),
+      params: new HttpParams({ fromObject: this.getQueryParams() }),
+      observe: 'response' as 'response',
+      responseType: 'blob' as 'blob'
+    };
+    return <Observable<HttpResponse<Blob>>>this.http.get(this.buildResourceURL(), options)
+      .map((res: HttpResponse<Blob>) => {
+        let url = window.URL.createObjectURL(res.body);
         const sanitizer = this.config.injector.get(DomSanitizer);
         url = sanitizer.bypassSecurityTrustUrl(url);
         return url;
@@ -202,6 +149,33 @@ export class ODataQuery<T> extends ODataOperation<T> {
         }
         return Observable.throw(err);
       });
+  }
+
+  public getQueryString() {
+    return `${this.buildResourceURL()}?${this.getQueryParams().toString()}`;
+  }
+
+  protected prepareFunctionParams(params: object | Array<string | number>, paramsType?: object): string {
+    let paramsStr = '';
+    if (!params) {
+      return paramsStr;
+    }
+    if (!Array.isArray(params)) {
+      const paramTokens = [];
+      Object.keys(params).forEach(k => {
+        if (params[k] === null) {
+          paramTokens.push(`${k}=null`);
+        } else if (paramsType) {
+          paramTokens.push(`${k}=${utils.wrapValue(params[k], paramsType[k])}`);
+        } else {
+          paramTokens.push(`${k}=${utils.wrapValue(params[k])}`);
+        }
+      });
+      paramsStr = paramTokens.join(',');
+    } else {
+      paramsStr = params.map(v => utils.wrapValue(v)).join(',');
+    }
+    return paramsStr;
   }
 
   protected buildResourceURL(): string {
@@ -216,19 +190,16 @@ export class ODataQuery<T> extends ODataOperation<T> {
     }
   }
 
-  protected getQueryParams(): URLSearchParams {
+  protected getQueryParams(): { [param: string]: string } {
     const params = super.getParams();
     if (this._expand && this._expand.length > 0) {
-      params.set(this.config.keys.expand, this._expand);
+      params[this.config.keys.expand] = this._expand;
     }
     return params;
   }
 
-  public getQueryString() {
-    return `${this.buildResourceURL()}?${this.getQueryParams().toString()}`;
-  }
-
-  protected extractData(res: Response, config: ODataConfiguration): any {
+  protected extractData(res: HttpResponse<Object>, config: ODataConfiguration): any {
+    console.log('Response', res);
     if (res.status < 200 || res.status >= 300) {
       throw new Error('Bad response status: ' + res.status);
     }
@@ -239,13 +210,51 @@ export class ODataQuery<T> extends ODataOperation<T> {
 
     const contentType = res.headers.get('Content-Type');
     if (contentType.indexOf('application/json') >= 0) {
-      const json = res.json();
+      const json: any = res.body;
       return json && json.value ? json.value : json;
     } else if (contentType.indexOf('multipart/mixed') >= 0) {
-      return res.text();
+      return res.body;
     } else {
       throw Error('Unknown Content-Type');
     }
+  }
+
+  private prepareExecGet() {
+    const config = this.config;
+    const headers = new HttpHeaders({ 'Authorization': `Basic ${config.authToken}` });
+    const options = {
+      headers: headers,
+      observe: 'response' as 'response',
+      params: new HttpParams({ fromObject: this.getQueryParams() })
+    };
+    return { config, options };
+  }
+
+  private prepareExecPost(customHeaders?: Map<string, string>) {
+    const config = this.config;
+
+    const headersObj = { 'Authorization': `Basic ${config.authToken}` };
+    if (customHeaders) {
+      customHeaders.forEach((v, k) => {
+        headersObj[k] = v;
+      });
+    }
+
+    const options = { headers: new HttpHeaders(headersObj) };
+    return { config, options };
+  }
+
+  private request(data, method = 'post'): Observable<any> {
+    return this.http[method](this.buildResourceURL(), this.body, data.options)
+      .map(res => {
+        return this.extractData(res, data.config);
+      })
+      .catch((err: any, caught: Observable<Array<T>>) => {
+        if (this.config.handleError) {
+          this.config.handleError(err, caught);
+        }
+        return Observable.throw(err);
+      });
   }
 
 }

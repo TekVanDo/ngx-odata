@@ -2,7 +2,7 @@ import { ODataOperationBase } from './odata-operation-base';
 import { Observable } from 'rxjs/Observable';
 import { Buildable } from './buildable';
 import { ODataConfiguration } from '../odata-configuration';
-import { URLSearchParams } from '@angular/http';
+import * as _ from 'lodash';
 
 export class ExpandOperation extends ODataOperationBase<any> implements Buildable {
   _buildable = true;
@@ -27,9 +27,9 @@ export class ExpandOperation extends ODataOperationBase<any> implements Buildabl
   build(): string {
     if (this._buildable) {
       const params = this.getParams();
-      if (params.paramsMap.size > 0) {
+      if (Object.keys(params).length > 0) {
         const paramsArr = [];
-        params.paramsMap.forEach((v, k) => paramsArr.push(`${k}=${v}`));
+        _.toPairs(params).forEach((pair: any[]) => paramsArr.push(`${pair[0]}=${pair[1]}`));
         return `${this._resource}(${paramsArr.join(';')})`;
       } else {
         return `${this._resource}`;
@@ -39,10 +39,10 @@ export class ExpandOperation extends ODataOperationBase<any> implements Buildabl
     }
   }
 
-  protected getParams(): URLSearchParams {
+  protected getParams(): { [param: string]: string } {
     const params = super.getParams();
     if (this._levels) {
-      params.set(this.config.keys.levels, this._levels);
+      params[this.config.keys.levels] = this._levels;
     }
     return params;
   }

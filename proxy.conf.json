@@ -1,0 +1,10 @@
+{
+  "/odata/*": {
+    "target": "http://services.odata.org",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/odata": "/V4/TripPinService"
+    }
+  }
+}

@@ -1,12 +1,12 @@
-import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import { ODataConfiguration } from './odata-configuration';
 import { ODataQuery } from './operations/odata-query-operation';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
 export class ODataService<T> {
-  constructor(public typeName: string, public http: Http, public config: ODataConfiguration) {
+  constructor(public typeName: string, public http: HttpClient, public config: ODataConfiguration) {
   }
 
   public get TypeName() {
@@ -19,32 +19,34 @@ export class ODataService<T> {
   }
 
   public Query(): ODataQuery<T> {
-    return new ODataQuery<T>(this);
+    return new ODataQuery<T>(<any>this);
   }
 
   public Post(): ODataQuery<T> {
-    return new ODataQuery<T>(this);
+    return new ODataQuery<T>(<any>this);
   }
 
-  public CustomAction(key: string, actionName: string, postdata: any): Observable<any> {
+  public CustomAction(key: string, actionName: string, postdata: any): Observable<Object> {
     const body = JSON.stringify(postdata);
-    return this.http.post(this.getEntityUri(key) + '/' + actionName, body, this.config.requestOptions).map(resp => resp.json());
+    return this.http.post(this.getEntityUri(key) + '/' + actionName, body, this.config.requestOptions)
+      .map((resp: HttpResponse<Object>) => resp.body);
   }
 
   public CustomFunction(key: string, actionName: string): Observable<any> {
-    return this.http.get(this.getEntityUri(key) + '/' + actionName, this.config.requestOptions).map(resp => resp.json());
+    return this.http.get(this.getEntityUri(key) + '/' + actionName, this.config.requestOptions)
+      .map(resp => resp.body);
   }
 
-  public Patch(entity: any, key: string): Observable<Response> {
+  public Patch(entity: any, key: string): Observable<HttpResponse<Object>> {
     const body = JSON.stringify(entity);
     return this.http.patch(this.getEntityUri(key), body, this.config.postRequestOptions);
   }
 
   public Put(): ODataQuery<T> {
-    return new ODataQuery<T>(this);
+    return new ODataQuery<T>(<any>this);
   }
 
-  public Delete(key: string): Observable<Response> {
+  public Delete(key: string): Observable<HttpResponse<Object>> {
     return this.http.delete(this.getEntityUri(key), this.config.requestOptions);
   }
 

@@ -1,12 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
-
 import { AppComponent } from './app.component';
 import { NgxOdataModule } from '../lib';
-import { VersionsService } from './odata-services/version.service';
-import { Http, HttpModule } from '@angular/http';
-
+import { PeopleService } from './odata-services/people.service';
 
 @NgModule({
   declarations: [
@@ -14,10 +11,9 @@ import { Http, HttpModule } from '@angular/http';
   ],
   imports: [
     BrowserModule,
-    NgxOdataModule,
-    HttpModule
+    NgxOdataModule.forRoot()
   ],
-  providers: [VersionsService],
+  providers: [PeopleService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

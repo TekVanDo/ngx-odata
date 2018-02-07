@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { VersionsService } from './odata-services/version.service';
+import { PeopleService } from './odata-services/people.service';
 
 @Component({
   selector: 'app-root',
@@ -7,13 +7,14 @@ import { VersionsService } from './odata-services/version.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'app';
 
-  constructor(private versions: VersionsService) {
+  peopleResponse;
+
+  constructor(private people: PeopleService) {
   }
 
   ngOnInit(): void {
-    this.versions.Query().exec();
+    this.peopleResponse = this.people.Query().get('russellwhyte').exec();
   }
 
 }

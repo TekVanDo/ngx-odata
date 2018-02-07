@@ -1,6 +1,6 @@
 import { Injectable, Injector } from '@angular/core';
-import { Headers, RequestOptions, Response } from '@angular/http';
 import { PagedResult } from './operations/odata-query-operation';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
 
 export class KeyConfigs {
   public filter = '$filter';
@@ -16,8 +16,7 @@ export class KeyConfigs {
 @Injectable()
 export class ODataConfiguration {
   public keys: KeyConfigs = new KeyConfigs();
-  public baseUrl = '/odata';  // TODO use property
-  public odataVersion = '4.0';
+  public baseUrl = '/odata';  // override this parameter in extension class
   public authToken = 'dGVzdHVzZXI6R24wa2dmYWxncWI0c3FIaVBP';
 
   constructor(public injector: Injector) { }
@@ -40,24 +39,24 @@ export class ODataConfiguration {
     console.warn('OData error: ', err, caught);
   }
 
-  get requestOptions(): RequestOptions {
-    const headers = new Headers({ 'Authorization': `Basic ${this.authToken}` });
-    return new RequestOptions({ body: '', headers: headers});
+  get requestOptions() {
+    const headers = new HttpHeaders({ 'Authorization': `Basic ${this.authToken}` });
+    return {  headers: headers, observe: 'response' as 'response', responseType: 'json'  as 'json'};
   }
 
-  get postRequestOptions(): RequestOptions {
-    const headers = new Headers({ 'Content-Type': 'application/json; charset=utf-8' });
-    return new RequestOptions({ headers: headers });
+  get postRequestOptions() {
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json; charset=utf-8' });
+    return { headers: headers, observe: 'response' as 'response' };
   }
 
-  public extractQueryResultDataWithCount<T>(res: Response): PagedResult<T> {
+  public extractQueryResultDataWithCount<T>(res: HttpResponse<Object>): PagedResult<T> {
     const pagedResult = new PagedResult<T>();
 
     if (res.status < 200 || res.status >= 300) {
       throw new Error('Bad response status: ' + res.status);
     }
 
-    const body = res.json();
+    const body = <any>res.body;
     const entities: T[] = body.value;
 
     pagedResult.data = entities;
