@@ -17,7 +17,7 @@ export class KeyConfigs {
 export class ODataConfiguration {
   public keys: KeyConfigs = new KeyConfigs();
   public baseUrl = '/odata';  // override this parameter in extension class
-  public authToken = 'dGVzdHVzZXI6R24wa2dmYWxncWI0c3FIaVBP';
+  public authToken = '';
 
   constructor(public injector: Injector) { }
 

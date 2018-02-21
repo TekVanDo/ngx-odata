@@ -47,12 +47,12 @@ export class ExpandOperation extends ODataOperationBase<any> implements Buildabl
     return params;
   }
 
-  exec(): Observable<any> {
+  exec(postResponseProcessor?: (any) => any): Observable<any> {
     return undefined;
   }
 
 
-  execBlob(...args): Observable<any> {
+  execBlob(postResponseProcessor?: (any) => any): Observable<any> {
     return undefined;
   }
 }

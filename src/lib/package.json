@@ -1,6 +1,6 @@
 {
   "name": "ngx-odata",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "license": "MIT",
   "module": "ngx-odata.js",
   "typings": "ngx-odata.d.ts",
@@ -26,7 +26,7 @@
   "bugs": "https://github.com/TekVanDo/ngx-odata/issues",
   "ngPackage": {
     "$schema": "./node_modules/ng-packagr/ng-package.schema.json",
-    "dest": "../../ng-packagr",
+    "dest": "../../build",
     "workingDirectory": "../../.ng_build",
     "lib": {
       "entryFile": "index.ts",

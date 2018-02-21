@@ -11,7 +11,7 @@ function warpDate(date, format) {
 
 const defaultFormat = 'YYYY-MM-DDTHH:MM:SSZ';
 
-export function wrapValue(value: any, type: string = 'string') {
+export function wrapValue(value: any, type?: string, customWrapper?: () => any) {
   if (type) {
     if (type === 'string') {
       return warpSting(value);

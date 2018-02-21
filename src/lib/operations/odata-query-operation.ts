@@ -83,11 +83,12 @@ export class ODataQuery<T> extends ODataOperation<T> {
     return <ODataQuery<T>>this;
   }
 
-  public exec(): Observable<any> {
+  public exec(postResponseProcessor?: (any) => any): Observable<any> {
     const requestData = this.prepareExecGet();
     return this.http.get(this.buildResourceURL(), requestData.options)
       .map((res: HttpResponse<Object>) => {
-        return this.extractData(res, requestData.config);
+        const data = this.extractData(res, requestData.config);
+        return postResponseProcessor ? postResponseProcessor(data) : data;
       })
       .catch((err: any, caught: Observable<Array<T>>) => {
         if (this.config.handleError) {
@@ -129,7 +130,7 @@ export class ODataQuery<T> extends ODataOperation<T> {
     return this.request(data, 'patch');
   }
 
-  public execBlob(): Observable<any> {
+  public execBlob(postResponseProcessor?: (any) => any): Observable<any> {
     const options = {
       headers: new HttpHeaders({ 'Authorization': `Basic ${this.config.authToken}` }),
       params: new HttpParams({ fromObject: this.getQueryParams() }),

@@ -1,12 +1,11 @@
 {
   "name": "ngx-odata-app",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json",
-    "build": "ng build --prod",
-    "packagr": "ng-packagr -p src/lib/package.json",
+    "build": "ng-packagr -p src/lib/package.json",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

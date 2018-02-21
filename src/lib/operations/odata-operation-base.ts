@@ -15,8 +15,8 @@ export abstract class ODataOperationBase<T> {
   constructor(protected config: ODataConfiguration) {
   }
 
-  abstract exec(...args): Observable<any>;
-  abstract execBlob(...args): Observable<any>;
+  abstract exec(postResponseProcessor?: (any) => any): Observable<any>;
+  abstract execBlob(postResponseProcessor?: (any) => any): Observable<any>;
 
   public select(select: string | string[]) {
     this._select = this.parseStringOrStringArray(select);
