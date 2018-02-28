@@ -23,39 +23,39 @@ export abstract class ODataOperationBase<T> {
     return this;
   }
 
-  public filter(filterFn: (f: FilterOperation) => void): ODataOperationBase<T> {
+  public filter(filterFn: (f: FilterOperation) => void) {
     const filterOperation: FilterOperation = new FilterOperation();
     filterFn(filterOperation);
     this._filter = filterOperation;
     return this;
   }
 
-  public top(top: number): ODataOperationBase<T> {
+  public top(top: number) {
     this._top = top;
     return this;
-  };
+  }
 
-  public skip(skip: number): ODataOperationBase<T> {
+  public skip(skip: number) {
     this._skip = skip;
     return this;
   }
 
-  public orderBy<K extends keyof T>(...orderBy: K[]): ODataOperationBase<T> {
+  public orderBy<K extends keyof T>(...orderBy: K[]) {
     this._orderBy = orderBy.join(',');
     return this;
   }
 
-  public levels(level: string): ODataOperationBase<T> {
+  public levels(level: string) {
     this._levels = level;
     return this;
   }
 
-  public search(expr: string): ODataOperationBase<T> {
+  public search(expr: string) {
     this._search = expr;
     return this;
   }
 
-  public setCustomParams(customParams): ODataOperationBase<T> {
+  public setCustomParams(customParams) {
     this._customParams = customParams;
     return this;
   }

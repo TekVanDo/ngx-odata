@@ -1,3 +1,8 @@
-<p>http://services.odata.org/V4/TripPinService/People('russellwhyte')</p>
+<p>Get a single entity from entity set</p>
 <code>http://services.odata.org/V4/TripPinService/People('russellwhyte')</code>
 <pre>{{peopleResponse | async | json}}</pre>
+
+
+<p>Filter and get query count</p>
+<code>http://services.odata.org/V4/TripPinService/People?$filter=FirstName eq 'Vincent'&$count=true</code>
+<pre>{{firstNameVincent | async | json}}</pre>

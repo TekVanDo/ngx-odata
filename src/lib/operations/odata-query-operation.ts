@@ -20,6 +20,7 @@ export class ODataQuery<T> extends ODataOperation<T> {
   protected _expand: string;
   protected body = {};
   protected boundary: string;
+  protected supportQueryCount = false;
 
   constructor(protected serviceInContext: ODataService<T>) {
     super(serviceInContext.typeName, serviceInContext.config, serviceInContext.http);
@@ -60,6 +61,11 @@ export class ODataQuery<T> extends ODataOperation<T> {
     return <ODataQuery<T>>this;
   }
 
+  public queryCount(support: boolean): ODataQuery<T> {
+    this.supportQueryCount = support;
+    return <ODataQuery<T>>this;
+  }
+
   public nextResource(type): ODataQuery<any> {
     this.serviceInContext = this.config.injector.get(type);
     this._typeName = this.serviceInContext.typeName;
@@ -87,7 +93,7 @@ export class ODataQuery<T> extends ODataOperation<T> {
     const requestData = this.prepareExecGet();
     return this.http.get(this.buildResourceURL(), requestData.options)
       .map((res: HttpResponse<Object>) => {
-        const data = this.extractData(res, requestData.config);
+        const data = this.extractData(res);
         return postResponseProcessor ? postResponseProcessor(data) : data;
       })
       .catch((err: any, caught: Observable<Array<T>>) => {
@@ -139,10 +145,9 @@ export class ODataQuery<T> extends ODataOperation<T> {
     };
     return <Observable<HttpResponse<Blob>>>this.http.get(this.buildResourceURL(), options)
       .map((res: HttpResponse<Blob>) => {
-        let url = window.URL.createObjectURL(res.body);
+        const url = window.URL.createObjectURL(res.body);
         const sanitizer = this.config.injector.get(DomSanitizer);
-        url = sanitizer.bypassSecurityTrustUrl(url);
-        return url;
+        return sanitizer.bypassSecurityTrustUrl(url);
       })
       .catch((err: any, caught: Observable<any>) => {
         if (this.config.handleError) {
@@ -196,10 +201,13 @@ export class ODataQuery<T> extends ODataOperation<T> {
     if (this._expand && this._expand.length > 0) {
       params[this.config.keys.expand] = this._expand;
     }
+    if (this.supportQueryCount) {
+      params[this.config.keys.count] = '' + this.supportQueryCount;
+    }
     return params;
   }
 
-  protected extractData(res: HttpResponse<Object>, config: ODataConfiguration): any {
+  protected extractData(res: HttpResponse<Object>): any {
     console.log('Response', res);
     if (res.status < 200 || res.status >= 300) {
       throw new Error('Bad response status: ' + res.status);
@@ -211,8 +219,7 @@ export class ODataQuery<T> extends ODataOperation<T> {
 
     const contentType = res.headers.get('Content-Type');
     if (contentType.indexOf('application/json') >= 0) {
-      const json: any = res.body;
-      return json && json.value ? json.value : json;
+      return res.body;
     } else if (contentType.indexOf('multipart/mixed') >= 0) {
       return res.body;
     } else {
@@ -248,7 +255,7 @@ export class ODataQuery<T> extends ODataOperation<T> {
   private request(data, method = 'post'): Observable<any> {
     return this.http[method](this.buildResourceURL(), this.body, data.options)
       .map(res => {
-        return this.extractData(res, data.config);
+        return this.extractData(res);
       })
       .catch((err: any, caught: Observable<Array<T>>) => {
         if (this.config.handleError) {

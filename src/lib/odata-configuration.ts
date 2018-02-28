@@ -11,6 +11,7 @@ export class KeyConfigs {
   public search = '$search';
   public expand = '$expand';
   public levels = '$levels';
+  public count = '$count';
 }
 
 @Injectable()
