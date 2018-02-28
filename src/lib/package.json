@@ -1,6 +1,6 @@
 {
   "name": "ngx-odata",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "license": "MIT",
   "module": "ngx-odata.js",
   "typings": "ngx-odata.d.ts",
