@@ -248,7 +248,10 @@ export class ODataQuery<T> extends ODataOperation<T> {
       });
     }
 
-    const options = { headers: new HttpHeaders(headersObj) };
+    const options = {
+      headers: new HttpHeaders(headersObj),
+      observe: 'response' as 'response',
+    };
     return { config, options };
   }
 
