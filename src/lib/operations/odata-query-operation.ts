@@ -208,7 +208,6 @@ export class ODataQuery<T> extends ODataOperation<T> {
   }
 
   protected extractData(res: HttpResponse<Object>): any {
-    console.log('Response', res);
     if (res.status < 200 || res.status >= 300) {
       throw new Error('Bad response status: ' + res.status);
     }
